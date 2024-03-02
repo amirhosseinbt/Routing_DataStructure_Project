@@ -875,7 +875,7 @@ void City::Dijkstra_FloydWarshall(int origin,int destination,std::vector <Statio
         // std::cout <<min_time <<" "<< min_cost << " " << index_min_cost << '\n'; 
         
     }
-    cout << (*stations)[index_min_cost].GetName() <<"  " <<min_cost << " time : " << min_time<<'\n' ;
+    // cout << (*stations)[index_min_cost].GetName() <<"  " <<min_cost << " time : " << min_time<<'\n' ;
     cout << "\n" << (*stations)[origin].GetName() << " -> ";
     cout << (*stations)[destination].GetName() << "   Lowest-Cost : "  
     << min_cost << '\n'<< '\n';
@@ -900,44 +900,302 @@ void City::dijkstraOnTime(int source,int destination,std::vector<Station> * stat
     start_with_bus.FillAdjMatrix(stations,path);
     start_with_taxi.FillAdjMatrix(stations,path);
     start_with_subway.FillAdjMatrix(stations,path);
-    int bestTime_start_bus = 0 ;
-    int bestTime_start_taxi = 0 ;
-    int bestTime_start_subway = 0 ;
+    
+    
+    Besttime intermediate_start_with_taxi;
+    Besttime intermediate_start_with_subway;
+    Besttime intermediate_start_with_bus;
+    intermediate_start_with_bus.FillAdjMatrix(stations,path);
+    intermediate_start_with_taxi.setArrivingTime(t);
+    intermediate_start_with_subway.setArrivingTime(t);
+    intermediate_start_with_taxi.FillAdjMatrix(stations,path);
+    intermediate_start_with_subway.FillAdjMatrix(stations,path);
+    
     if ((*stations)[source].GetBusStatus())
     {
-        start_with_bus.Dijkstra(source,"bus");
-        bestTime_start_bus = start_with_bus.getDijkstraList()[destination];
-    }
-    else
-    {
-        bestTime_start_bus = INT_MAX;
+        start_with_bus.Dijkstra(source);
     }
     if((*stations)[source].GetTaxi_SubwayStatus())
     {
         start_with_taxi.Dijkstra(source,"taxi");
-        start_with_subway.Dijkstra(source,"subway");
-        bestTime_start_taxi = start_with_taxi.getDijkstraList()[destination];
-        bestTime_start_subway = start_with_subway.getDijkstraList()[destination];
-        
+        start_with_subway.Dijkstra(source,"subway");        
     }
-    else
+    // intermediate_start_with_subway.Dijkstra(source,"bus");
+    // cout << "1 finish " << '\n';
+    // intermediate_start_with_subway.Dijkstra(source);
+    // cout << intermediate_start_with_subway.getDijkstraList()[destination];
+    // intermediate_start_with_subway.printDijkstra(stations);
+    // intermediate_start_with_subway.PrintPath(stations,source,destination);
+    // cout << "  2 finish " << '\n'<< '\n'<< '\n'<< '\n'<< '\n';
+    // intermediate_start_with_taxi.Dijkstra(2,"bus");
+    // cout << "3 finish " << '\n'<< '\n'<< '\n'<< '\n'<< '\n';
+    // intermediate_start_with_taxi.Dijkstra(3,"bus");
+    // cout << "4 finish " << '\n';
+    // intermediate_start_with_subway.Dijkstra(6,"bus");
+    // cout << "5 finish " << '\n';
+    // intermediate_start_with_subway.Dijkstra(7,"bus");
+    // cout << "6 finish " << '\n';
+    // intermediate_start_with_subway.Dijkstra(8,"bus");
+    // cout << "7 finish " << '\n';
+    // cout << start_with_bus.getDijkstraList()[destination] << '\n';
+    // cout << start_with_taxi.getDijkstraList()[destination] << '\n';
+    // cout << start_with_subway.getDijkstraList()[destination] << '\n';
+    pair<pair<TimedPath,int>,pair<bool,int>> first_copy_parents[N];
+    pair<pair<TimedPath,int>,pair<bool,int>> second_copy_parents[N];
+    pair<pair<TimedPath,int>,pair<bool,int>> third_copy_parents[N];
+    pair<pair<TimedPath,int>,pair<bool,int>> forth_copy_parents[N];
+    int min_time = INT_MAX;
+    int index_min_time = -1;
+    for (int i = 0; i < N; i++)
     {
-        bestTime_start_taxi = INT_MAX;
-        bestTime_start_subway = INT_MAX;
-    }
-    if(bestTime_start_bus < bestTime_start_taxi && bestTime_start_bus < bestTime_start_subway)
-    {
-        start_with_bus.PrintPath(stations,source,destination);
-    }
-    if (bestTime_start_taxi < bestTime_start_bus && bestTime_start_taxi < bestTime_start_subway) 
-    {
-        start_with_taxi.PrintPath(stations,source,destination);
+        int bestTime_start_bus = 0 ;
+        int bestTime_start_taxi = 0 ;
+        int bestTime_start_subway = 0 ;
+        int time_to_i = 0 ;
 
+        bool bus_status_to_i;
+        bool taxi_status_to_i;
+        bool subway_status_to_i ;
+        std::string bus_line_to_i ;
+        std::string subway_taxi_line_to_i ;
+        
+        int intermediate_bestTime_start_bus = 0 ;
+        int intermediate_bestTime_start_taxi = 0 ;
+        int intermediate_bestTime_start_subway = 0 ;
+        int time_to_destination = 0 ;
+
+        bool bus_status_to_destination;
+        bool taxi_status_to_destination;
+        bool subway_status_to_destination ;
+        std::string bus_line_to_destination ;
+        std::string subway_taxi_line_to_destination ;
+        if (i != destination)
+        {
+            if ((*stations)[source].GetBusStatus())
+            {
+                bestTime_start_bus = start_with_bus.getDijkstraList()[i];
+            }
+            else
+            {
+                bestTime_start_bus = INT_MAX;
+            }
+            if((*stations)[source].GetTaxi_SubwayStatus())
+            {
+                bestTime_start_taxi = start_with_taxi.getDijkstraList()[i];
+                bestTime_start_subway = start_with_subway.getDijkstraList()[i];
+                
+            }
+            else
+            {
+                bestTime_start_taxi = INT_MAX;
+                bestTime_start_subway = INT_MAX;
+            }
+            if(bestTime_start_bus <= bestTime_start_taxi && bestTime_start_bus <= bestTime_start_subway)
+            {
+                time_to_i = bestTime_start_bus;
+                bus_status_to_i = start_with_bus.getParents()[i].first.first.getBusStatus();
+                taxi_status_to_i = start_with_bus.getParents()[i].first.first.getTaxiStatus();
+                subway_status_to_i = start_with_bus.getParents()[i].first.first.getSubwayStatus();
+                bus_line_to_i = start_with_bus.getParents()[i].first.first.getBus_Line();
+                subway_taxi_line_to_i = start_with_bus.getParents()[i].first.first.getSubway_Taxi_Line();
+                for (int j = 0; j < N; j++)
+                {
+                    first_copy_parents[j] = start_with_bus.getParents()[j];
+                }
+            }
+            if (bestTime_start_taxi <= bestTime_start_bus && bestTime_start_taxi <= bestTime_start_subway) 
+            {
+                time_to_i = bestTime_start_taxi;
+                bus_status_to_i = start_with_taxi.getParents()[i].first.first.getBusStatus();
+                taxi_status_to_i = start_with_taxi.getParents()[i].first.first.getTaxiStatus();
+                subway_status_to_i = start_with_taxi.getParents()[i].first.first.getSubwayStatus();
+                bus_line_to_i = start_with_taxi.getParents()[i].first.first.getBus_Line();
+                subway_taxi_line_to_i = start_with_taxi.getParents()[i].first.first.getSubway_Taxi_Line();
+                for (int j = 0; j < N; j++)
+                {
+                    first_copy_parents[j] = start_with_taxi.getParents()[j];
+                }
+            }
+            if (bestTime_start_subway <= bestTime_start_bus && bestTime_start_subway <= bestTime_start_taxi)
+            {
+                time_to_i = bestTime_start_subway;
+                bus_status_to_i = start_with_subway.getParents()[i].first.first.getBusStatus();
+                taxi_status_to_i = start_with_subway.getParents()[i].first.first.getTaxiStatus();
+                subway_status_to_i = start_with_subway.getParents()[i].first.first.getSubwayStatus();
+                bus_line_to_i = start_with_subway.getParents()[i].first.first.getBus_Line();
+                subway_taxi_line_to_i = start_with_subway.getParents()[i].first.first.getSubway_Taxi_Line();
+                for (int j = 0; j < N; j++)
+                {
+                    first_copy_parents[j] = start_with_subway.getParents()[j];
+                }
+            }
+            // cout << "Best " << bestTime_start_bus << " " <<bestTime_start_taxi << " " << bestTime_start_subway<<'\n';
+            int j;
+
+            if ((*stations)[i].GetBusStatus())
+            {
+                // intermediate_start_with_bus.setArrivingTime(t);
+                if (bestTime_start_bus < bestTime_start_taxi && bestTime_start_bus == bestTime_start_subway)
+                {
+                    intermediate_start_with_bus.setArrivingTime(t + bestTime_start_bus);
+
+                }
+                else if (bestTime_start_taxi < bestTime_start_bus && bestTime_start_taxi == bestTime_start_subway)
+                {
+                    intermediate_start_with_bus.setArrivingTime(t + bestTime_start_bus);
+
+                }
+                else if (bestTime_start_subway < bestTime_start_bus && bestTime_start_taxi == bestTime_start_subway)
+                {
+                    intermediate_start_with_bus.setArrivingTime(t + bestTime_start_subway);
+                }
+                else
+                {
+                    intermediate_start_with_bus.setArrivingTime(t + time_to_i);
+                }
+                // intermediate_start_with_bus.setArrivingTime(t + time_to_i);
+                intermediate_start_with_bus.Dijkstra(i);
+                intermediate_bestTime_start_bus = intermediate_start_with_bus.getDijkstraList()[destination];
+            }
+            else
+            {
+                intermediate_bestTime_start_bus = INT_MAX;
+            }
+            if((*stations)[i].GetTaxi_SubwayStatus())
+            {
+                if (bestTime_start_bus < bestTime_start_taxi && bestTime_start_bus == bestTime_start_subway)
+                {
+                    intermediate_start_with_taxi.setArrivingTime(t + bestTime_start_bus);
+
+                }
+                else if (bestTime_start_taxi < bestTime_start_bus && bestTime_start_taxi == bestTime_start_subway)
+                {
+                    intermediate_start_with_taxi.setArrivingTime(t + bestTime_start_bus);
+
+                }
+                else if (bestTime_start_subway < bestTime_start_bus && bestTime_start_taxi == bestTime_start_subway)
+                {
+                    intermediate_start_with_taxi.setArrivingTime(t + bestTime_start_subway);
+                }
+                else
+                {
+                    intermediate_start_with_taxi.setArrivingTime(t + time_to_i);
+                }
+                // intermediate_start_with_taxi.setArrivingTime(t+time_to_i);
+                intermediate_start_with_taxi.Dijkstra(i,"taxi");
+                intermediate_bestTime_start_taxi = intermediate_start_with_taxi.getDijkstraList()[destination];
+    
+            }
+            else
+            {
+                intermediate_bestTime_start_taxi = INT_MAX;
+                
+            }
+            if ((*stations)[i].GetTaxi_SubwayStatus())
+            {
+                if (bestTime_start_bus < bestTime_start_taxi && bestTime_start_bus == bestTime_start_subway)
+                {
+                    intermediate_start_with_subway.setArrivingTime(t + bestTime_start_bus);
+
+                }
+                else if (bestTime_start_taxi < bestTime_start_bus && bestTime_start_taxi == bestTime_start_subway)
+                {
+                    intermediate_start_with_subway.setArrivingTime(t + bestTime_start_bus);
+
+                }
+                else if (bestTime_start_subway < bestTime_start_bus && bestTime_start_taxi == bestTime_start_subway)
+                {
+                    intermediate_start_with_subway.setArrivingTime(t + bestTime_start_subway);
+                }
+                else
+                {
+                    intermediate_start_with_subway.setArrivingTime(t + time_to_i);
+                }
+                // intermediate_start_with_subway.setArrivingTime(t+time_to_i);
+                intermediate_start_with_subway.Dijkstra(i,"subway");
+                intermediate_bestTime_start_subway = intermediate_start_with_subway.getDijkstraList()[destination];
+                // cout << intermediate_bestTime_start_subway;
+            }
+            else
+            {
+                intermediate_bestTime_start_subway = INT_MAX;
+            }
+            
+            if(intermediate_bestTime_start_bus <= intermediate_bestTime_start_taxi
+            && intermediate_bestTime_start_bus <= intermediate_bestTime_start_subway)
+            {
+                time_to_destination = intermediate_bestTime_start_bus;
+                j = intermediate_start_with_bus.getIndexFromParents(i,destination);
+                bus_status_to_destination = intermediate_start_with_bus.getParents()[j].first.first.getBusStatus();
+                taxi_status_to_destination = intermediate_start_with_bus.getParents()[j].first.first.getTaxiStatus();
+                subway_status_to_destination = intermediate_start_with_bus.getParents()[j].first.first.getSubwayStatus();
+                bus_line_to_destination = intermediate_start_with_bus.getParents()[j].first.first.getBus_Line();
+                subway_taxi_line_to_destination = intermediate_start_with_bus.getParents()[j].first.first.getSubway_Taxi_Line();
+                for (int j = 0; j < N; j++)
+                {
+                    second_copy_parents[j] = intermediate_start_with_bus.getParents()[j];
+                }
+            }
+            if (intermediate_bestTime_start_taxi <= intermediate_bestTime_start_bus
+            && intermediate_bestTime_start_taxi <= intermediate_bestTime_start_subway) 
+            {
+                time_to_destination = intermediate_bestTime_start_taxi;
+                j = intermediate_start_with_taxi.getIndexFromParents(i,destination);
+                bus_status_to_destination = intermediate_start_with_taxi.getParents()[j].first.first.getBusStatus();
+                taxi_status_to_destination = intermediate_start_with_taxi.getParents()[j].first.first.getTaxiStatus();
+                subway_status_to_destination = intermediate_start_with_taxi.getParents()[j].first.first.getSubwayStatus();
+                bus_line_to_destination = intermediate_start_with_taxi.getParents()[j].first.first.getBus_Line();
+                subway_taxi_line_to_destination = intermediate_start_with_taxi.getParents()[j].first.first.getSubway_Taxi_Line();
+                for (int j = 0; j < N; j++)
+                {
+                    second_copy_parents[j] = intermediate_start_with_taxi.getParents()[j];
+                }
+            }
+            if (intermediate_bestTime_start_subway <= intermediate_bestTime_start_bus
+            && intermediate_bestTime_start_subway <= intermediate_bestTime_start_taxi)
+            {
+                time_to_destination = intermediate_bestTime_start_subway;
+                j = intermediate_start_with_subway.getIndexFromParents(i,destination);
+                bus_status_to_destination = intermediate_start_with_subway.getParents()[j].first.first.getBusStatus();
+                taxi_status_to_destination = intermediate_start_with_subway.getParents()[j].first.first.getTaxiStatus();
+                subway_status_to_destination = intermediate_start_with_subway.getParents()[j].first.first.getSubwayStatus();
+                bus_line_to_destination = intermediate_start_with_subway.getParents()[j].first.first.getBus_Line();
+                subway_taxi_line_to_destination = intermediate_start_with_subway.getParents()[j].first.first.getSubway_Taxi_Line();
+                for (int j = 0; j < N; j++)
+                {
+                    second_copy_parents[j] = intermediate_start_with_subway.getParents()[j];
+                }
+            }
+            // cout << (*stations)[i].GetName() << " "<< min_time << " " << time_to_i << " " << time_to_destination << '\n';
+            if ((time_to_i + time_to_destination) < min_time && (time_to_i + time_to_destination) != 0)
+            {
+                min_time = (time_to_i + time_to_destination);
+                index_min_time = i;
+                for (int j = 0; j < N; j++)
+                {
+                    third_copy_parents[j] = first_copy_parents[j];
+                }
+                for (int j = 0; j < N; j++)
+                {
+                    forth_copy_parents[j] = second_copy_parents[j];
+                }
+                
+            }
+        // cout << (*stations)[i].GetName()<< " " 
+        // << time_to_i << " " << time_to_destination << '\n';
+        
+        // <<"     "<<intermediate_bestTime_start_taxi<< endl;
+        }
     }
-    if (bestTime_start_subway < bestTime_start_bus && bestTime_start_subway < bestTime_start_taxi)
-    {
-        start_with_subway.PrintPath(stations,source,destination);
-    }
+    cout << "\n" << (*stations)[source].GetName() << " -> ";
+    cout << (*stations)[destination].GetName() << "   Best-Time : "  
+    << min_time<<" minutes" << '\n'<< '\n';
+    Besttime bt;
+    bt.Print(stations,index_min_time,third_copy_parents);
+    bt.Print(stations,destination,forth_copy_parents);
+    std::cout << '\n';
+    cout << "Arriving Time : ";
+    (t+min_time).printTime();
     
     
 }

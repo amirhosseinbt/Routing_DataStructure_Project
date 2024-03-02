@@ -1082,6 +1082,17 @@ void LowestCost::dijkstra(int source)
                         
                         
                     }
+                    else
+                    {
+                        if (stoi((time_during_dijkstra + bus.getMinute_gettingOn_gettingOff()).getHour()) >= 6 
+                            && stoi((time_during_dijkstra+bus.getMinute_gettingOn_gettingOff()).getHour())<8
+                            || (stoi((time_during_dijkstra + bus.getMinute_gettingOn_gettingOff()).getHour()) == 8 
+                            && stoi((time_during_dijkstra+bus.getMinute_gettingOn_gettingOff()).getMinute())==0))
+                        {
+                            busCost = bus.getCost_for_each_line_Traffic();
+                        }
+                        
+                    }
                 }
 
                 if(subwayCost != 0)
@@ -1098,6 +1109,17 @@ void LowestCost::dijkstra(int source)
                             subwayCost = subway.getCost_for_each_line_Traffic();
                         }
                     }
+                    else
+                    {
+                        if (stoi((time_during_dijkstra + subway.getMinute_gettingOn_gettingOff()).getHour()) >= 6 
+                            && stoi((time_during_dijkstra+subway.getMinute_gettingOn_gettingOff()).getHour())<8
+                            || (stoi((time_during_dijkstra + subway.getMinute_gettingOn_gettingOff()).getHour()) == 8 
+                            && stoi((time_during_dijkstra+subway.getMinute_gettingOn_gettingOff()).getMinute())==0))
+                        {
+                            subwayCost = subway.getCost_for_each_line_Traffic();
+                        }
+                        
+                    }
                 }
                 if(taxiCost != 0)
                 {
@@ -1113,6 +1135,17 @@ void LowestCost::dijkstra(int source)
                         {
                             taxiCost = taxiCost * taxi_cost_coefficient_traffic;
                         }
+                    }
+                    else
+                    {
+                        if (stoi((time_during_dijkstra + taxi.getMinute_gettingOn_gettingOff()).getHour()) >= 18 
+                            && stoi((time_during_dijkstra+taxi.getMinute_gettingOn_gettingOff()).getHour())<20
+                            || (stoi((time_during_dijkstra+taxi.getMinute_gettingOn_gettingOff()).getHour()) == 20 
+                                && stoi((time_during_dijkstra+taxi.getMinute_gettingOn_gettingOff()).getMinute())==0))
+                        {
+                            taxiCost = taxiCost * taxi_cost_coefficient_traffic;
+                        }
+                        
                     }
                 }
                 busCost = busCost != 0 ? busCost : INT_MAX;

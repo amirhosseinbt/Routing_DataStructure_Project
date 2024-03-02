@@ -37,7 +37,7 @@ int main()
     Tehran.FillAdjMatrix(stations,path);
     //Tehran.fillCostMatrix(stations,path);
     //Tehran.printCostMatrix(stations);
-    //Map.fillCostMatrix(stations,cost);
+    // Map.fillCostMatrix(stations,cost);
     int NumberOfOrders = 0;
     queue<Request> requests;
     cout << "Please Enter Number of orders : " << '\n';
@@ -67,6 +67,7 @@ int main()
             else
             {
                 Tehran.setArrivingTime(requests.front().GetTime());
+                Map.setArrivingTime(requests.front().GetTime());
                 Tehran.Dijkstra(origin);
                 Tehran.PrintPath(stations,origin,destination);
                 // Tehran.dijkstraOnCost(origin);
@@ -84,9 +85,9 @@ int main()
                 //Map.setArrivingTime(requests.front().GetTime());
                 //Map.dijkstraOnCost(origin,destination,path);
                 
-                Tehran.Dijkstra_FloydWarshall(origin,destination,stations,path,requests.front().GetTime());
-                
-                // Tehran.dijkstraOnTime(origin,destination,stations,path,requests.front().GetTime());
+                // Tehran.Dijkstra_FloydWarshall(origin,destination,stations,path,requests.front().GetTime());
+                Map.Dijkstra_FloydWarshall(origin,destination,stations,path,requests.front().GetTime());
+                Tehran.dijkstraOnTime(origin,destination,stations,path,requests.front().GetTime());
             }
         }
         else

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <string>
 
 class Cost
 {
@@ -32,6 +33,7 @@ public:
     void setBusDistance(unsigned int);            
     unsigned int getTrainTaxiDistance() const;       
     unsigned int getBusDistance() const; 
+
 private:
     std::string firstST="";
     std::string secondST="";
@@ -45,6 +47,7 @@ private:
     bool bus_status = false;   
     unsigned int trainTaxiDistance=0;
     unsigned int busDistance=0;             
+           
 };
 
 #endif
